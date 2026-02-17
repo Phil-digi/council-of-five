@@ -623,75 +623,127 @@ export function VoiceApp() {
     setTurnRecords([]);
   };
 
+  const personaRole = (p: PersonaType) => {
+    const roles: Record<PersonaType, string> = {
+      Adrien: 'Le Rationaliste',
+      Nova: 'La Visionnaire',
+      Henri: 'Le Conservateur',
+      Aya: 'Justice Sociale',
+      Damien: 'Le Contrarien'
+    };
+    return roles[p] || '';
+  };
+
   return (
-    <div className="voice-app">
-      <header className="voice-header">
-        <h1>🏛️ Le débat des Cinq</h1>
-        {userName && <p className="user-greeting">Bonjour {userName}</p>}
+    <div className="studio">
+      {/* ── Show Header / Ticker Bar ── */}
+      <header className="show-header">
+        <div className="show-logo">
+          <span className="logo-accent">LE DÉBAT</span>
+          <span className="logo-main">DES CINQ</span>
+        </div>
+        {userName && <span className="show-user">Invité : {userName}</span>}
+        {userQuestion && (
+          <div className="topic-ticker">
+            <span className="ticker-label">SUJET</span>
+            <span className="ticker-text">{userQuestion}</span>
+          </div>
+        )}
       </header>
 
-      {/* Les 5 personas toujours visibles */}
-      <div className="personas-bar">
+      {/* ── Persona Desk — 5 panelists ── */}
+      <div className="desk-row">
         {ALL_PERSONAS.map(p => {
           const config = PERSONAS[p];
           const isActive = selectedPersona === p;
           const isTalking = isActive && isSpeaking;
+          const Icon = PERSONA_ICONS[p];
           return (
             <div
               key={p}
-              className={`persona-avatar ${isActive ? 'active' : ''} ${isTalking ? 'talking' : ''}`}
-              style={{ '--persona-color': config.color } as React.CSSProperties}
+              className={`desk-card ${isActive ? 'active' : ''} ${isTalking ? 'on-air' : ''}`}
+              style={{ '--pc': config.color } as React.CSSProperties}
             >
-              <span className="avatar-icon">{(() => { const Icon = PERSONA_ICONS[p]; return Icon ? <Icon size={36} color={config.color} /> : null; })()}</span>
-              <span className="avatar-name">{config.name}</span>
-              {isTalking && <span className="talking-indicator">🎙️</span>}
+              <div className="desk-icon">{Icon && <Icon size={40} color={isActive ? config.color : '#64748b'} />}</div>
+              <span className="desk-name">{config.name}</span>
+              <span className="desk-role">{personaRole(p)}</span>
+              {isTalking && <div className="on-air-badge">EN DIRECT</div>}
             </div>
           );
         })}
       </div>
 
-      <main className="voice-main">
+      {/* ── Stage / Main Content ── */}
+      <main className="stage">
 
-        {/* Accueil */}
+        {/* Welcome */}
         {appState === 'welcome' && (
-          <div className="center-content">
-            <h2>Bienvenue</h2>
-            <p>Cliquez pour démarrer une conversation vocale</p>
-            <button className="start-btn" onClick={handleStart}>
-              🎙️ Commencer
+          <div className="stage-center cinema">
+            <div className="cinema-logo">
+              <div className="cinema-ring"></div>
+              <span className="cinema-title">LE DÉBAT DES CINQ</span>
+              <span className="cinema-sub">5 voix · 1 question · 0 filtre</span>
+            </div>
+            <button className="go-live-btn" onClick={handleStart}>
+              <span className="go-live-dot"></span>
+              ENTRER EN DIRECT
             </button>
           </div>
         )}
 
-        {/* Intro parlée par l'hôte */}
+        {/* Intro speaking */}
         {appState === 'intro_speaking' && (
-          <div className="center-content">
-            <div className="status-badge speaking">🔊 Le débat des Cinq vous accueille...</div>
-            {transcript && <p className="transcript-live">{transcript}</p>}
+          <div className="stage-center">
+            <div className="lower-third intro-lt">
+              <div className="lt-accent-bar"></div>
+              <div className="lt-content">
+                <span className="lt-label">OUVERTURE</span>
+                <span className="lt-title">Le Débat des Cinq vous accueille</span>
+              </div>
+            </div>
+            {transcript && <p className="live-caption">{transcript}</p>}
           </div>
         )}
 
-        {/* Écoute du nom */}
+        {/* Listening name */}
         {appState === 'listening_name' && (
-          <div className="center-content">
-            <div className="status-badge listening">🎤 Dites votre prénom</div>
-            {interimTranscript && <p className="transcript-live">"{interimTranscript}"</p>}
+          <div className="stage-center">
+            <div className="prompt-card">
+              <div className="prompt-mic">
+                <div className="mic-ring"></div>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><rect x="9" y="1" width="6" height="11" rx="3" /><path d="M5 10a7 7 0 0 0 14 0" /><line x1="12" y1="17" x2="12" y2="21" /></svg>
+              </div>
+              <span className="prompt-text">Dites votre prénom</span>
+            </div>
+            {interimTranscript && <p className="live-caption">« {interimTranscript} »</p>}
           </div>
         )}
 
-        {/* Greeting parlé */}
+        {/* Greeting */}
         {appState === 'greeting_speaking' && (
-          <div className="center-content">
-            <div className="status-badge speaking">🔊 Le débat des Cinq vous écoute...</div>
-            {transcript && <p className="transcript-live">{transcript}</p>}
+          <div className="stage-center">
+            <div className="lower-third intro-lt">
+              <div className="lt-accent-bar"></div>
+              <div className="lt-content">
+                <span className="lt-label">BIENVENUE</span>
+                <span className="lt-title">Bienvenue {userName} sur le plateau</span>
+              </div>
+            </div>
+            {transcript && <p className="live-caption">{transcript}</p>}
           </div>
         )}
 
-        {/* Écoute de la question */}
+        {/* Listening question */}
         {appState === 'listening_question' && (
-          <div className="center-content">
-            <div className="status-badge listening">🎤 Posez votre question</div>
-            {interimTranscript && <p className="transcript-live">"{interimTranscript}"</p>}
+          <div className="stage-center">
+            <div className="prompt-card">
+              <div className="prompt-mic">
+                <div className="mic-ring"></div>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><rect x="9" y="1" width="6" height="11" rx="3" /><path d="M5 10a7 7 0 0 0 14 0" /><line x1="12" y1="17" x2="12" y2="21" /></svg>
+              </div>
+              <span className="prompt-text">Posez votre question au panel</span>
+            </div>
+            {interimTranscript && <p className="live-caption">« {interimTranscript} »</p>}
             {completedDebate && (
               <button className="download-btn" onClick={downloadTranscript}>
                 📄 Télécharger la transcription
@@ -700,353 +752,734 @@ export function VoiceApp() {
           </div>
         )}
 
-        {/* Connexion */}
-        {appState === 'connecting' && (
-          <div className="center-content">
-            {currentSpeaker && (
-              <div className="speaker-banner" style={{ borderColor: currentSpeaker.color }}>
-                <span className="speaker-icon">{(() => { const Icon = PERSONA_ICONS[currentSpeaker.name]; return Icon ? <Icon size={28} color={currentSpeaker.color} /> : null; })()}</span>
-                <strong className="speaker-name">{currentSpeaker.name}</strong>
-                {currentTurnLabel && <span className="speaker-kind">{currentTurnLabel}</span>}
-                {pendingTurns.length > 0 && <span className="speaker-progress">Tour {turnIndex + 1}/{pendingTurns.length}</span>}
+        {/* Connecting */}
+        {appState === 'connecting' && currentSpeaker && (
+          <div className="stage-center">
+            <div className="lower-third" style={{ '--lt-color': currentSpeaker.color } as React.CSSProperties}>
+              <div className="lt-accent-bar"></div>
+              <div className="lt-content">
+                <div className="lt-icon">{(() => { const Icon = PERSONA_ICONS[currentSpeaker.name]; return Icon ? <Icon size={36} color={currentSpeaker.color} /> : null; })()}</div>
+                <div className="lt-info">
+                  <span className="lt-name">{currentSpeaker.name}</span>
+                  <span className="lt-role">{personaRole(currentSpeaker.name)}</span>
+                </div>
+                {currentTurnLabel && <span className="lt-badge">{currentTurnLabel}</span>}
+              </div>
+            </div>
+            <div className="connecting-pulse">
+              <div className="cp-dot"></div>
+              <div className="cp-dot"></div>
+              <div className="cp-dot"></div>
+            </div>
+            {/* Turn progress */}
+            {pendingTurns.length > 1 && (
+              <div className="turn-progress">
+                {pendingTurns.map((t, i) => {
+                  const tc = PERSONAS[t.persona]?.color || '#fff';
+                  return <div key={i} className={`tp-dot ${i < turnIndex ? 'done' : i === turnIndex ? 'current' : ''}`} style={{ background: i <= turnIndex ? tc : 'rgba(255,255,255,0.15)' }} title={t.persona}></div>;
+                })}
               </div>
             )}
-
-            <div className="status-badge">⏳ Connexion…</div>
           </div>
         )}
 
-        {/* Réponse */}
-        {appState === 'responding' && (
-          <div className="center-content">
-            {currentSpeaker && (
-              <div className="speaker-banner" style={{ borderColor: currentSpeaker.color }}>
-                <span className="speaker-icon">{(() => { const Icon = PERSONA_ICONS[currentSpeaker.name]; return Icon ? <Icon size={28} color={currentSpeaker.color} /> : null; })()}</span>
-                <strong className="speaker-name">{currentSpeaker.name}</strong>
-                {currentTurnLabel && <span className="speaker-kind">{currentTurnLabel}</span>}
-                {pendingTurns.length > 0 && <span className="speaker-progress">Tour {turnIndex + 1}/{pendingTurns.length}</span>}
+        {/* Responding */}
+        {appState === 'responding' && currentSpeaker && (
+          <div className="stage-center">
+            <div className={`lower-third ${isSpeaking ? 'speaking' : ''}`} style={{ '--lt-color': currentSpeaker.color } as React.CSSProperties}>
+              <div className="lt-accent-bar"></div>
+              <div className="lt-content">
+                <div className="lt-icon">{(() => { const Icon = PERSONA_ICONS[currentSpeaker.name]; return Icon ? <Icon size={36} color={currentSpeaker.color} /> : null; })()}</div>
+                <div className="lt-info">
+                  <span className="lt-name">{currentSpeaker.name}</span>
+                  <span className="lt-role">{personaRole(currentSpeaker.name)}</span>
+                </div>
+                {currentTurnLabel && <span className="lt-badge">{currentTurnLabel}</span>}
+                {isSpeaking && (
+                  <div className="waveform">
+                    <span></span><span></span><span></span><span></span><span></span>
+                  </div>
+                )}
               </div>
-            )}
-
-            <div className={`status-badge ${isSpeaking ? 'speaking' : 'listening'}`}>
-              {isSpeaking ? '🔊 Réponse en cours...' : '🎤 À votre écoute'}
             </div>
 
             {transcript && (
-              <div className="transcript-box">
+              <div className="caption-box">
                 <p>{transcript}</p>
               </div>
             )}
 
-            {userQuestion && (
-              <div className="question-reminder">
-                <strong>Question :</strong> {userQuestion}
+            {/* Turn progress */}
+            {pendingTurns.length > 1 && (
+              <div className="turn-progress">
+                {pendingTurns.map((t, i) => {
+                  const tc = PERSONAS[t.persona]?.color || '#fff';
+                  return <div key={i} className={`tp-dot ${i < turnIndex ? 'done' : i === turnIndex ? 'current' : ''}`} style={{ background: i <= turnIndex ? tc : 'rgba(255,255,255,0.15)' }} title={t.persona}></div>;
+                })}
               </div>
             )}
 
-            <button className="reset-btn" onClick={handleNewQuestion}>
-              🎤 Nouvelle question
-            </button>
-
-            <button className="reset-btn" onClick={handleReset}>
-              🔄 Recommencer
-            </button>
+            <div className="stage-actions">
+              <button className="action-btn" onClick={handleNewQuestion}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="9" y="1" width="6" height="11" rx="3" /><path d="M5 10a7 7 0 0 0 14 0" /><line x1="12" y1="17" x2="12" y2="21" /></svg>
+                Nouvelle question
+              </button>
+              <button className="action-btn secondary" onClick={handleReset}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg>
+                Quitter le plateau
+              </button>
+            </div>
           </div>
         )}
 
-        {/* Erreur */}
+        {/* Error */}
         {(error || voiceError) && (
-          <div className="error-box">❌ {error || voiceError}</div>
+          <div className="error-bar">⚠ {error || voiceError}</div>
         )}
       </main>
 
       <style>{`
-        .voice-app {
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+        /* ═══════════════════════════════════════
+           STUDIO — Base
+           ═══════════════════════════════════════ */
+        .studio {
           min-height: 100vh;
-          background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-          color: white;
+          background: #0a0a0f;
+          background-image:
+            radial-gradient(ellipse 80% 60% at 50% 0%, rgba(59,130,246,0.08) 0%, transparent 60%),
+            radial-gradient(ellipse 60% 40% at 50% 100%, rgba(139,92,246,0.06) 0%, transparent 50%);
+          color: #e2e8f0;
           display: flex;
           flex-direction: column;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+          overflow: hidden;
         }
 
-        .voice-header {
-          text-align: center;
-          padding: 1rem;
+        /* ═══════════════════════════════════════
+           SHOW HEADER — Ticker bar
+           ═══════════════════════════════════════ */
+        .show-header {
+          display: flex;
+          align-items: center;
+          gap: 1.5rem;
+          padding: 0.6rem 1.5rem;
+          background: linear-gradient(90deg, #111118 0%, #16161f 50%, #111118 100%);
+          border-bottom: 1px solid rgba(255,255,255,0.06);
+          position: relative;
+          z-index: 10;
         }
 
-        .voice-header h1 {
-          font-size: 1.5rem;
-          margin: 0;
-          background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        .show-logo {
+          display: flex;
+          align-items: baseline;
+          gap: 0.4rem;
+          flex-shrink: 0;
+        }
+
+        .logo-accent {
+          font-size: 0.65rem;
+          font-weight: 800;
+          letter-spacing: 0.15em;
+          color: #3b82f6;
+          text-transform: uppercase;
+        }
+
+        .logo-main {
+          font-size: 1rem;
+          font-weight: 900;
+          letter-spacing: 0.08em;
+          background: linear-gradient(135deg, #60a5fa, #a78bfa);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
+          text-transform: uppercase;
         }
 
-        .user-greeting {
+        .show-user {
+          font-size: 0.75rem;
+          color: #64748b;
+          flex-shrink: 0;
+        }
+
+        .topic-ticker {
+          flex: 1;
+          min-width: 0;
+          display: flex;
+          align-items: center;
+          gap: 0.6rem;
+          overflow: hidden;
+        }
+
+        .ticker-label {
+          font-size: 0.6rem;
+          font-weight: 700;
+          letter-spacing: 0.12em;
+          color: #0a0a0f;
+          background: #f59e0b;
+          padding: 0.15rem 0.5rem;
+          border-radius: 2px;
+          flex-shrink: 0;
+        }
+
+        .ticker-text {
+          font-size: 0.8rem;
           color: #94a3b8;
-          margin: 0.25rem 0 0;
-          font-size: 0.9rem;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          font-style: italic;
         }
 
-        /* Barre des 5 personas toujours visible */
-        .personas-bar {
+        /* ═══════════════════════════════════════
+           DESK ROW — Panelists
+           ═══════════════════════════════════════ */
+        .desk-row {
           display: flex;
           justify-content: center;
-          gap: 0.5rem;
-          padding: 1rem;
-          background: rgba(0,0,0,0.2);
+          gap: 0.75rem;
+          padding: 1rem 1rem 0.75rem;
+          background: linear-gradient(180deg, rgba(255,255,255,0.02) 0%, transparent 100%);
         }
 
-        .persona-avatar {
+        .desk-card {
           display: flex;
           flex-direction: column;
           align-items: center;
-          padding: 0.5rem 0.75rem;
+          gap: 0.3rem;
+          padding: 0.6rem 0.9rem 0.5rem;
           border-radius: 12px;
-          background: rgba(255,255,255,0.03);
-          border: 2px solid transparent;
-          opacity: 0.25;
-          transition: all 0.3s ease;
+          background: rgba(255,255,255,0.025);
+          border: 1px solid rgba(255,255,255,0.04);
+          opacity: 0.35;
+          transition: all 0.4s cubic-bezier(.4,0,.2,1);
+          position: relative;
+          min-width: 72px;
+        }
+
+        .desk-card.active {
+          opacity: 1;
+          border-color: var(--pc);
+          background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+          box-shadow: 0 4px 24px -4px color-mix(in srgb, var(--pc) 30%, transparent);
+          transform: translateY(-2px);
+        }
+
+        .desk-card.on-air {
+          animation: glow-pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes glow-pulse {
+          0%, 100% { box-shadow: 0 4px 24px -4px color-mix(in srgb, var(--pc) 30%, transparent); }
+          50% { box-shadow: 0 4px 40px -4px color-mix(in srgb, var(--pc) 50%, transparent); }
+        }
+
+        .desk-icon {
+          width: 40px;
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .desk-name {
+          font-size: 0.7rem;
+          font-weight: 700;
+          letter-spacing: 0.06em;
+          color: #94a3b8;
+          text-transform: uppercase;
+        }
+
+        .desk-card.active .desk-name {
+          color: white;
+        }
+
+        .desk-role {
+          font-size: 0.55rem;
+          color: #475569;
+          text-align: center;
+          line-height: 1.2;
+        }
+
+        .desk-card.active .desk-role {
+          color: #94a3b8;
+        }
+
+        .on-air-badge {
+          position: absolute;
+          top: -6px;
+          right: -6px;
+          font-size: 0.5rem;
+          font-weight: 800;
+          letter-spacing: 0.1em;
+          color: white;
+          background: #ef4444;
+          padding: 2px 6px;
+          border-radius: 3px;
+          animation: on-air-blink 1s ease-in-out infinite;
+        }
+
+        @keyframes on-air-blink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.4; }
+        }
+
+        /* ═══════════════════════════════════════
+           STAGE — Main content
+           ═══════════════════════════════════════ */
+        .stage {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
           position: relative;
         }
 
-        .persona-avatar.active {
-          opacity: 1;
-          border-color: var(--persona-color);
-          background: rgba(255,255,255,0.08);
-          transform: scale(1.14);
+        .stage-center {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 1.25rem;
+          padding: 2rem 1.5rem;
+          max-width: 720px;
+          margin: 0 auto;
+          width: 100%;
         }
 
-        .persona-avatar.talking {
-          animation: talking-pulse 0.8s infinite;
-          box-shadow: 0 0 20px var(--persona-color);
+        /* ═══════════════════════════════════════
+           CINEMA — Welcome screen
+           ═══════════════════════════════════════ */
+        .cinema {
+          gap: 2.5rem;
         }
 
-        .talking-indicator {
+        .cinema-logo {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.75rem;
+          position: relative;
+        }
+
+        .cinema-ring {
           position: absolute;
-          top: -0.35rem;
-          right: -0.35rem;
-          background: rgba(0,0,0,0.6);
-          border: 1px solid rgba(255,255,255,0.25);
-          border-radius: 999px;
-          padding: 0.15rem 0.35rem;
-          font-size: 0.7rem;
+          top: -50px;
+          width: 200px;
+          height: 200px;
+          border-radius: 50%;
+          border: 1px solid rgba(59,130,246,0.15);
+          animation: ring-rotate 12s linear infinite;
         }
 
-        @keyframes talking-pulse {
-          0%, 100% { transform: scale(1.1); }
-          50% { transform: scale(1.2); }
+        .cinema-ring::after {
+          content: '';
+          position: absolute;
+          top: -2px;
+          left: 50%;
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: #3b82f6;
+          transform: translateX(-50%);
         }
 
-        .avatar-icon {
+        @keyframes ring-rotate {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+
+        .cinema-title {
+          font-size: 2.2rem;
+          font-weight: 900;
+          letter-spacing: 0.12em;
+          background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #f472b6 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          text-align: center;
+        }
+
+        .cinema-sub {
+          font-size: 0.9rem;
+          color: #64748b;
+          letter-spacing: 0.3em;
+          text-transform: uppercase;
+          font-weight: 500;
+        }
+
+        .go-live-btn {
+          display: flex;
+          align-items: center;
+          gap: 0.6rem;
+          padding: 0.9rem 2rem;
+          font-size: 0.85rem;
+          font-weight: 700;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          border: 1px solid rgba(239,68,68,0.4);
+          border-radius: 6px;
+          background: rgba(239,68,68,0.08);
+          color: #fca5a5;
+          cursor: pointer;
+          transition: all 0.3s;
+          font-family: 'Inter', sans-serif;
+        }
+
+        .go-live-btn:hover {
+          background: rgba(239,68,68,0.15);
+          border-color: rgba(239,68,68,0.6);
+          color: #fecaca;
+          box-shadow: 0 0 30px rgba(239,68,68,0.15);
+        }
+
+        .go-live-dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: #ef4444;
+          animation: on-air-blink 1s ease-in-out infinite;
+        }
+
+        /* ═══════════════════════════════════════
+           PROMPT CARD — Microphone prompts
+           ═══════════════════════════════════════ */
+        .prompt-card {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 1rem;
+        }
+
+        .prompt-mic {
+          width: 72px;
+          height: 72px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 50%;
+          background: rgba(59,130,246,0.1);
+          border: 2px solid rgba(59,130,246,0.3);
+          position: relative;
+        }
+
+        .mic-ring {
+          position: absolute;
+          inset: -8px;
+          border-radius: 50%;
+          border: 1px solid rgba(59,130,246,0.15);
+          animation: mic-expand 2s ease-out infinite;
+        }
+
+        @keyframes mic-expand {
+          0% { transform: scale(1); opacity: 1; }
+          100% { transform: scale(1.4); opacity: 0; }
+        }
+
+        .prompt-text {
+          font-size: 1.1rem;
+          font-weight: 500;
+          color: #94a3b8;
+        }
+
+        /* ═══════════════════════════════════════
+           LOWER THIRD — Speaker banner
+           ═══════════════════════════════════════ */
+        .lower-third {
+          width: 100%;
+          display: flex;
+          align-items: stretch;
+          border-radius: 8px;
+          overflow: hidden;
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.06);
+          animation: lt-slide-in 0.5s cubic-bezier(.4,0,.2,1);
+          transition: box-shadow 0.3s;
+        }
+
+        .lower-third.speaking {
+          box-shadow: 0 0 30px -8px color-mix(in srgb, var(--lt-color, #3b82f6) 25%, transparent);
+        }
+
+        @keyframes lt-slide-in {
+          from { transform: translateX(-20px); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+
+        .lt-accent-bar {
+          width: 4px;
+          flex-shrink: 0;
+          background: var(--lt-color, #3b82f6);
+        }
+
+        .intro-lt .lt-accent-bar {
+          background: linear-gradient(180deg, #3b82f6, #8b5cf6);
+        }
+
+        .lt-content {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          padding: 0.75rem 1rem;
+        }
+
+        .lt-icon {
           width: 36px;
           height: 36px;
           display: flex;
           align-items: center;
           justify-content: center;
+          flex-shrink: 0;
         }
 
-        .avatar-name {
-          font-size: 0.65rem;
-          color: #94a3b8;
-          margin-top: 0.25rem;
-        }
-
-        .persona-avatar.active .avatar-name {
-          color: white;
-        }
-
-        /* Zone principale */
-        .voice-main {
-          flex: 1;
+        .lt-info {
           display: flex;
           flex-direction: column;
-          padding: 1rem;
-          max-width: 500px;
-          margin: 0 auto;
-          width: 100%;
+          gap: 0.1rem;
         }
 
-        .center-content {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          text-align: center;
-          gap: 1.5rem;
-        }
-
-        .center-content h2 {
-          font-size: 1.5rem;
-          margin: 0;
-        }
-
-        .center-content p {
-          color: #94a3b8;
-          margin: 0;
-        }
-
-        /* Bouton démarrer */
-        .start-btn {
-          padding: 1rem 2rem;
-          font-size: 1.1rem;
-          font-weight: 600;
-          border: none;
-          border-radius: 12px;
-          cursor: pointer;
-          background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-          color: white;
-          transition: all 0.3s;
-        }
-
-        .start-btn:hover {
-          transform: scale(1.02);
-          box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
-        }
-
-        /* Badge de statut */
-        .status-badge {
-          padding: 0.75rem 1.5rem;
-          border-radius: 20px;
+        .lt-name {
           font-size: 1rem;
+          font-weight: 700;
+          color: white;
+          letter-spacing: 0.04em;
+        }
+
+        .lt-role {
+          font-size: 0.7rem;
+          color: #94a3b8;
           font-weight: 500;
-          background: rgba(255,255,255,0.1);
-          border: 1px solid rgba(255,255,255,0.2);
         }
 
-        .status-badge.speaking {
-          background: rgba(245, 158, 11, 0.15);
-          border-color: #f59e0b;
-          color: #fcd34d;
-          animation: badge-pulse 1s infinite;
+        .lt-label {
+          font-size: 0.6rem;
+          font-weight: 700;
+          letter-spacing: 0.12em;
+          color: #94a3b8;
+          text-transform: uppercase;
         }
 
-        .status-badge.listening {
-          background: rgba(16, 185, 129, 0.15);
-          border-color: #10b981;
-          color: #6ee7b7;
-        }
-
-        .speaker-banner {
-          width: 100%;
-          padding: 0.75rem 1rem;
-          border-radius: 12px;
-          background: rgba(255,255,255,0.06);
-          border: 2px solid rgba(255,255,255,0.12);
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          justify-content: center;
-          flex-wrap: wrap;
-        }
-
-        .speaker-icon {
-          display: flex;
-          align-items: center;
-        }
-
-        .speaker-name {
+        .lt-title {
           font-size: 1rem;
+          font-weight: 600;
           color: white;
         }
 
-        .speaker-kind,
-        .speaker-progress {
-          font-size: 0.85rem;
+        .lt-badge {
+          font-size: 0.6rem;
+          font-weight: 600;
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
           color: #cbd5e1;
-          background: rgba(0,0,0,0.25);
-          border: 1px solid rgba(255,255,255,0.12);
+          background: rgba(255,255,255,0.06);
+          border: 1px solid rgba(255,255,255,0.1);
           padding: 0.2rem 0.5rem;
-          border-radius: 999px;
+          border-radius: 3px;
+          margin-left: auto;
         }
 
-        @keyframes badge-pulse {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
-          50% { box-shadow: 0 0 15px 3px rgba(245, 158, 11, 0.2); }
+        /* ── Waveform animation ── */
+        .waveform {
+          display: flex;
+          align-items: center;
+          gap: 3px;
+          margin-left: 0.5rem;
         }
 
-        /* Transcript en direct */
-        .transcript-live {
-          font-size: 1.2rem;
+        .waveform span {
+          width: 3px;
+          border-radius: 2px;
+          background: var(--lt-color, #3b82f6);
+          animation: wave 0.6s ease-in-out infinite;
+        }
+
+        .waveform span:nth-child(1) { height: 8px; animation-delay: 0s; }
+        .waveform span:nth-child(2) { height: 14px; animation-delay: 0.1s; }
+        .waveform span:nth-child(3) { height: 20px; animation-delay: 0.2s; }
+        .waveform span:nth-child(4) { height: 14px; animation-delay: 0.3s; }
+        .waveform span:nth-child(5) { height: 8px; animation-delay: 0.4s; }
+
+        @keyframes wave {
+          0%, 100% { transform: scaleY(0.5); }
+          50% { transform: scaleY(1); }
+        }
+
+        /* ═══════════════════════════════════════
+           CONNECTING — Dots animation
+           ═══════════════════════════════════════ */
+        .connecting-pulse {
+          display: flex;
+          gap: 8px;
+        }
+
+        .cp-dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: #64748b;
+          animation: cp-bounce 1.2s ease-in-out infinite;
+        }
+
+        .cp-dot:nth-child(2) { animation-delay: 0.15s; }
+        .cp-dot:nth-child(3) { animation-delay: 0.3s; }
+
+        @keyframes cp-bounce {
+          0%, 100% { transform: scale(0.5); opacity: 0.3; }
+          50% { transform: scale(1); opacity: 1; }
+        }
+
+        /* ═══════════════════════════════════════
+           TURN PROGRESS — Dots tracker
+           ═══════════════════════════════════════ */
+        .turn-progress {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+
+        .tp-dot {
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          transition: all 0.3s;
+          border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .tp-dot.current {
+          transform: scale(1.3);
+          border-color: transparent;
+          box-shadow: 0 0 8px 2px rgba(255,255,255,0.2);
+        }
+
+        .tp-dot.done {
+          opacity: 0.5;
+        }
+
+        /* ═══════════════════════════════════════
+           CAPTION — Live transcript
+           ═══════════════════════════════════════ */
+        .live-caption {
+          font-size: 1.15rem;
           color: #93c5fd;
           font-style: italic;
           max-width: 100%;
-          padding: 0 1rem;
+          text-align: center;
+          line-height: 1.6;
         }
 
-        /* Boîte de transcript */
-        .transcript-box {
-          padding: 1rem;
-          background: rgba(255, 255, 255, 0.05);
-          border-radius: 12px;
+        .caption-box {
           width: 100%;
-          max-height: 200px;
+          padding: 1rem 1.25rem;
+          background: rgba(255,255,255,0.03);
+          border-radius: 8px;
+          border: 1px solid rgba(255,255,255,0.04);
+          max-height: 180px;
           overflow-y: auto;
         }
 
-        .transcript-box p {
+        .caption-box p {
           margin: 0;
-          line-height: 1.6;
-          color: #e2e8f0;
+          line-height: 1.7;
+          color: #cbd5e1;
+          font-size: 0.95rem;
         }
 
-        /* Rappel de la question */
-        .question-reminder {
-          padding: 0.75rem 1rem;
-          background: rgba(255,255,255,0.03);
-          border-radius: 8px;
-          font-size: 0.85rem;
-          color: #94a3b8;
-          width: 100%;
+        /* ═══════════════════════════════════════
+           ACTIONS
+           ═══════════════════════════════════════ */
+        .stage-actions {
+          display: flex;
+          gap: 0.75rem;
+          margin-top: 0.5rem;
         }
 
-        /* Bouton reset */
-        .reset-btn {
-          padding: 0.75rem 1.5rem;
-          font-size: 1rem;
-          border: 1px solid rgba(255,255,255,0.2);
-          border-radius: 10px;
-          background: transparent;
+        .action-btn {
+          display: flex;
+          align-items: center;
+          gap: 0.4rem;
+          padding: 0.6rem 1.1rem;
+          font-size: 0.8rem;
+          font-weight: 600;
+          border: 1px solid rgba(255,255,255,0.12);
+          border-radius: 6px;
+          background: rgba(255,255,255,0.04);
           color: #94a3b8;
           cursor: pointer;
-          transition: all 0.3s;
+          transition: all 0.25s;
+          font-family: 'Inter', sans-serif;
         }
 
-        .reset-btn:hover {
-          background: rgba(255,255,255,0.05);
+        .action-btn:hover {
+          background: rgba(255,255,255,0.08);
           color: white;
+          border-color: rgba(255,255,255,0.2);
+        }
+
+        .action-btn.secondary {
+          border-color: rgba(255,255,255,0.06);
+          color: #64748b;
+        }
+
+        .action-btn.secondary:hover {
+          color: #94a3b8;
+          border-color: rgba(255,255,255,0.12);
         }
 
         .download-btn {
-          margin-top: 1rem;
-          padding: 0.75rem 1.5rem;
-          font-size: 1rem;
-          border: 1px solid rgba(74, 222, 128, 0.3);
-          border-radius: 10px;
-          background: rgba(74, 222, 128, 0.1);
+          padding: 0.6rem 1.2rem;
+          font-size: 0.8rem;
+          font-weight: 600;
+          border: 1px solid rgba(74, 222, 128, 0.25);
+          border-radius: 6px;
+          background: rgba(74, 222, 128, 0.06);
           color: #4ade80;
           cursor: pointer;
           transition: all 0.3s;
+          font-family: 'Inter', sans-serif;
         }
 
         .download-btn:hover {
-          background: rgba(74, 222, 128, 0.2);
-          border-color: rgba(74, 222, 128, 0.5);
-          color: #86efac;
+          background: rgba(74, 222, 128, 0.12);
+          border-color: rgba(74, 222, 128, 0.4);
         }
 
-        /* Erreur */
-        .error-box {
-          padding: 1rem;
-          background: rgba(239, 68, 68, 0.1);
+        /* ═══════════════════════════════════════
+           ERROR
+           ═══════════════════════════════════════ */
+        .error-bar {
+          position: fixed;
+          bottom: 1rem;
+          left: 50%;
+          transform: translateX(-50%);
+          padding: 0.6rem 1.5rem;
+          background: rgba(239, 68, 68, 0.15);
           border: 1px solid rgba(239, 68, 68, 0.3);
-          border-radius: 12px;
+          border-radius: 6px;
           color: #fca5a5;
-          text-align: center;
+          font-size: 0.85rem;
+          z-index: 100;
+          backdrop-filter: blur(8px);
+        }
+
+        /* ═══════════════════════════════════════
+           RESPONSIVE
+           ═══════════════════════════════════════ */
+        @media (max-width: 640px) {
+          .show-header { flex-wrap: wrap; gap: 0.5rem; padding: 0.5rem 1rem; }
+          .topic-ticker { flex-basis: 100%; order: 3; }
+          .desk-row { gap: 0.4rem; padding: 0.75rem 0.5rem; }
+          .desk-card { min-width: 56px; padding: 0.5rem 0.5rem 0.4rem; }
+          .desk-icon svg { width: 28px; height: 28px; }
+          .desk-name { font-size: 0.6rem; }
+          .desk-role { display: none; }
+          .cinema-title { font-size: 1.5rem; }
+          .cinema-sub { font-size: 0.7rem; letter-spacing: 0.15em; }
+          .stage-center { padding: 1.25rem 1rem; }
+          .stage-actions { flex-direction: column; width: 100%; }
+          .action-btn { justify-content: center; }
         }
       `}</style>
     </div>
   );
 }
+
