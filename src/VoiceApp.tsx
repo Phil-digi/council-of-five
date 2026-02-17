@@ -385,7 +385,7 @@ export function VoiceApp() {
       persona: mainPersona,
       kind: 'main',
       calloutTarget: calloutPersona,
-      message: `${previousContext}${userName} te demande: "${question}". Réponds comme dans un vrai débat TV français — cash, vivant, naturel. Donne ta position en 4-6 phrases max. À la fin, interpelle ${calloutName} directement: pose-lui une question qui le met en difficulté ou provoque-le sur ses idées. Français oral, pas écrit.`
+      message: `${previousContext}${userName} te demande: "${question}". Réponds comme dans un vrai débat TV français — cash, vivant, naturel. Donne ta position en 4-6 phrases max. À la fin, adresse-toi directement à ${calloutName} — il va te répondre juste après. Pose-lui une question qui le met en difficulté ou provoque-le sur ses idées. Français oral, pas écrit.`
     };
 
     setPendingTurns([mainTurn]);
@@ -434,7 +434,9 @@ export function VoiceApp() {
         };
 
         // Suivre qui a parlé pour ne citer que des personnes déjà intervenues
-        const interventionPlan = getInterventionPlan(currentTurn.persona, [calloutTarget]);
+        // Exclure Nova (closing persona) pour éviter qu'elle parle deux fois
+        const closingPersona = getClosingPersona(currentTurn.persona);
+        const interventionPlan = getInterventionPlan(currentTurn.persona, [calloutTarget, closingPersona]);
         const spokenSoFar: PersonaType[] = [currentTurn.persona, calloutTarget];
 
         const interventionTurns: PendingTurn[] = interventionPlan.map((item) => {
@@ -449,10 +451,10 @@ export function VoiceApp() {
           spokenSoFar.push(item.persona);
 
           const stanceInstruction = item.stance === 'support'
-            ? `Tu es plutôt d'accord avec ${mainName} sur ce coup-là. Dis-le clairement, puis renforce son argument avec ton propre angle. Tu peux quand même envoyer une pique à ${teaseName} en passant.`
+            ? `Tu es plutôt d'accord avec ${mainName} sur ce coup-là. Dis-le clairement, puis renforce son argument avec ton propre angle. Tu peux réagir à ce qu'a dit ${teaseName} aussi.`
             : item.stance === 'challenge'
-              ? `Tu n'es pas d'accord avec ${mainName}. Dis-le franchement, pointe ce qui cloche dans son raisonnement et propose une alternative. Tu peux interpeller ${teaseName} aussi.`
-              : `Tu apportes un angle complètement différent que personne n'a vu. Surprends tout le monde — un twist, une hypothèse, un fait inattendu. Interpelle ${teaseName} au passage.`;
+              ? `Tu n'es pas d'accord avec ${mainName}. Dis-le franchement, pointe ce qui cloche dans son raisonnement et propose une alternative. Réagis aussi à ce que ${teaseName} a dit.`
+              : `Tu apportes un angle complètement différent que personne n'a vu. Surprends tout le monde — un twist, une hypothèse, un fait inattendu. Réagis à ce qu'a dit ${teaseName} au passage.`;
 
           return {
             persona: item.persona,
