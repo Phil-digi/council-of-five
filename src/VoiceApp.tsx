@@ -6,6 +6,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { PersonaType, PERSONAS } from './types';
 import { useRealtimeVoice } from './hooks/useRealtimeVoice';
+import { PERSONA_ICONS } from './components/PersonaIcons';
 
 // Déclaration TypeScript pour l'API Web Speech
 interface SpeechRecognitionEvent extends Event {
@@ -641,7 +642,7 @@ export function VoiceApp() {
               className={`persona-avatar ${isActive ? 'active' : ''} ${isTalking ? 'talking' : ''}`}
               style={{ '--persona-color': config.color } as React.CSSProperties}
             >
-              <span className="avatar-emoji">{config.emoji}</span>
+              <span className="avatar-icon">{(() => { const Icon = PERSONA_ICONS[p]; return Icon ? <Icon size={36} color={config.color} /> : null; })()}</span>
               <span className="avatar-name">{config.name}</span>
               {isTalking && <span className="talking-indicator">🎙️</span>}
             </div>
@@ -704,7 +705,7 @@ export function VoiceApp() {
           <div className="center-content">
             {currentSpeaker && (
               <div className="speaker-banner" style={{ borderColor: currentSpeaker.color }}>
-                <span className="speaker-emoji">{currentSpeaker.emoji}</span>
+                <span className="speaker-icon">{(() => { const Icon = PERSONA_ICONS[currentSpeaker.name]; return Icon ? <Icon size={28} color={currentSpeaker.color} /> : null; })()}</span>
                 <strong className="speaker-name">{currentSpeaker.name}</strong>
                 {currentTurnLabel && <span className="speaker-kind">{currentTurnLabel}</span>}
                 {pendingTurns.length > 0 && <span className="speaker-progress">Tour {turnIndex + 1}/{pendingTurns.length}</span>}
@@ -720,7 +721,7 @@ export function VoiceApp() {
           <div className="center-content">
             {currentSpeaker && (
               <div className="speaker-banner" style={{ borderColor: currentSpeaker.color }}>
-                <span className="speaker-emoji">{currentSpeaker.emoji}</span>
+                <span className="speaker-icon">{(() => { const Icon = PERSONA_ICONS[currentSpeaker.name]; return Icon ? <Icon size={28} color={currentSpeaker.color} /> : null; })()}</span>
                 <strong className="speaker-name">{currentSpeaker.name}</strong>
                 {currentTurnLabel && <span className="speaker-kind">{currentTurnLabel}</span>}
                 {pendingTurns.length > 0 && <span className="speaker-progress">Tour {turnIndex + 1}/{pendingTurns.length}</span>}
@@ -838,8 +839,12 @@ export function VoiceApp() {
           50% { transform: scale(1.2); }
         }
 
-        .avatar-emoji {
-          font-size: 1.8rem;
+        .avatar-icon {
+          width: 36px;
+          height: 36px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
 
         .avatar-name {
@@ -937,8 +942,9 @@ export function VoiceApp() {
           flex-wrap: wrap;
         }
 
-        .speaker-emoji {
-          font-size: 1.2rem;
+        .speaker-icon {
+          display: flex;
+          align-items: center;
         }
 
         .speaker-name {
