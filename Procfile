@@ -1,1 +1,1 @@
-web: node --loader tsx server/index.ts
+web: node --import tsx server/index.ts

@@ -10,7 +10,7 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "server": "tsx server/index.ts",
-    "start": "node --loader tsx server/index.ts",
+    "start": "node --import tsx server/index.ts",
     "heroku-postbuild": "npm run build"
   },
   "dependencies": {
